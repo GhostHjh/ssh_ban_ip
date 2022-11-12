@@ -249,8 +249,8 @@ void ban_ip_run(ban_ip& argv_ban_ip)
     {
         argv_ban_ip.run();
         printf("run\n");
-        //std::this_thread::sleep_for(std::chrono::minutes(argv_ban_ip.get_int_time()));
-        std::this_thread::sleep_for(std::chrono::seconds(argv_ban_ip.get_int_time()));
+        std::this_thread::sleep_for(std::chrono::minutes(argv_ban_ip.get_int_time()));
+        //std::this_thread::sleep_for(std::chrono::seconds(argv_ban_ip.get_int_time()));
     }
 }
 
