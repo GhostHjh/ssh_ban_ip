@@ -64,16 +64,17 @@ bool ban_ip::init()
     else
         m_config.int_time = 5;
     
-    // cout << "log_file_name\t" << m_config.log_file_name << endl
-    //     << "log_file_error\t" << m_config.error_num << endl
-    //     << "hosts_file\t" << m_config.hosts_file_name << endl;
+    cout << endl << endl << endl
+        << "log_file_name\t" << m_config.log_file_name << endl
+        << "log_file_error\t" << m_config.error_num << endl
+        << "hosts_file\t" << m_config.hosts_file_name << endl
+        << "int_time\t" << m_config.int_time << endl << endl << endl;
     
     return true;
 }
 
 void ban_ip::run()
-{  
-    init();
+{
     string tmp_file_str;
     int is_error_ip;
 

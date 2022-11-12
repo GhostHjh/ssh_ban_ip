@@ -78,6 +78,7 @@ void ban_ip_help();
 void ban_ip_init();
 void ban_ip_config(ban_ip& argv_ban_ip, const char* argv_file_name);
 void ban_ip_config(ban_ip& argv_ban_ip, string& argv_file_name);
+void ban_ip_config(ban_ip& argv_ban_ip);
 void ban_ip_run(ban_ip& argv_ban_ip);
 // void ban_ip_start(ban_ip& argv_ban_ip);
 // void ban_ip_stop(ban_ip& argv_ban_ip);
@@ -144,6 +145,7 @@ int main(int argc, char** argv)
             if (argv_str == "-run")
             {
                 ban_ip_config(m_ban_ip, config_ini_name);
+                ban_ip_config(m_ban_ip);
                 ban_ip_run(m_ban_ip);
             } 
             // else if (argv_str == "-start")
@@ -241,6 +243,11 @@ void ban_ip_config(ban_ip& argv_ban_ip, const char* argv_file_name)
 void ban_ip_config(ban_ip& argv_ban_ip, string& argv_file_name)
 {
     argv_ban_ip.config(argv_file_name);
+}
+
+void ban_ip_config(ban_ip& argv_ban_ip)
+{
+    argv_ban_ip.init();
 }
 
 void ban_ip_run(ban_ip& argv_ban_ip)
