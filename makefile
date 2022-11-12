@@ -1,6 +1,6 @@
 ban_ip: main.o ban_ip.o my_ini.o select_ip.o
 	g++ main.o ban_ip.o my_ini.o select_ip.o -o ban_ip
-	del *.o
+	rm -rf main.o ban_ip.o my_ini.o select_ip.o
 
 main.o:main.cpp include/ban_ip.h
 	g++ -c main.cpp -I include
@@ -15,7 +15,7 @@ select_ip.o: src/select_ip.cpp include/select_ip.h
 	g++ -c src/select_ip.cpp -I include
 
 win_clean:
-	del *.o
+	del main.o ban_ip.o my_ini.o select_ip.o
 
 clean:
 	rm -rf main.o ban_ip.o my_ini.o select_ip.o
