@@ -24,6 +24,7 @@ private:
         string os;
         string log_file_name;
         int error_num;
+        int int_time;
         string hosts_file_name;
         string record_file_name;
     };
@@ -35,23 +36,22 @@ public:
 
     bool config();
     bool config(const string& config_file_name);
-    int& config_level();
 
-    void init();
+    bool init();
+
+    void run();
+
+    int get_int_time();
 
 private:
     string config_file_name;
     config_t m_config;
-    int m_config_level;
 
     vector<string> log_file_str_s;
     map<string, int> log_ip_enum;
 
     vector<string> hosts_file_str_s;
     map<string, int> hosts_ip_enum;
-
-    vector<string> record_file_str_s;
-    map<string, int> record_ip_enum;
 };
 
 
