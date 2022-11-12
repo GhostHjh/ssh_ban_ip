@@ -102,6 +102,7 @@ int main(int argc, char** argv)
         else if (argv_str == "-run")
         {
             ban_ip_config(m_ban_ip, "./config.ini");
+            ban_ip_config(m_ban_ip);
             ban_ip_run(m_ban_ip);
  
         } 

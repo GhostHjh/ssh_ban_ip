@@ -156,7 +156,7 @@ void my_ini::init()
 
             for (int i = d_fh +1; i < tmp_file_str.size(); ++i)
             {
-                if (tmp_file_str[i] == ' ' || tmp_file_str[i] == '\t')
+                if (tmp_file_str[i] == ' ' || tmp_file_str[i] == '\t' || tmp_file_str[i] == '\n' || tmp_file_str[i] == '\r')
                     ++i;
                 value += tmp_file_str[i];
             }
