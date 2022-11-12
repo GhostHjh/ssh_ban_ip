@@ -186,7 +186,7 @@ int main(int argc, char** argv)
 
 void ban_ip_help()
 {
-    printf("-help \t(查看配置文件)\n");
+    printf("-help \t(查看帮助)\n");
     printf("-init \t(在默认路径 重新/自动 生成配置文件)\n");
     printf("-config 配置文件\t(指定配置路径的文件)\n");
     printf("-run \t(使用默认路径的配置文件, 运行一次)\n");
