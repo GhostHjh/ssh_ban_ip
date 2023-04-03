@@ -1,86 +1,52 @@
 #include "select_ip.h"
+#include <regex>
+#include <set>
 
-using std::cout;
-using std::endl;
-using std::regex_search;
+const char* select_ip::_login_failed_feature_str = "Failed password";
 
+select_ip::select_ip(std::string& argv_log_line_str, std::set<std::string>& argv_login_blacklisk_set, std::map<std::string, int>& argv_login_failures_map, int& argv_login_failures_size)
+    : _log_line_str(argv_log_line_str), _login_blacklisk_set(argv_login_blacklisk_set), _login_failures_map(argv_login_failures_map), _login_failures_size(argv_login_failures_size),
+    _ip('\0', 16), _log_failed_feature_str_index(0), _log_failed_find_index(0), _regex_ip("((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}")
+{ /*tmp_int = 0;*/ }
 
-select_ip::select_ip() : file_str_s(nullptr), ip_enum(nullptr), re_ip("((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}"), re_num("num:num:([0-9]{1,2})"), re_mode(0) {}
-
-select_ip::select_ip(vector<string>& argv_file_str_s, map<string, int>& argv_ip_enum, int argv_mode) : file_str_s(&argv_file_str_s), ip_enum(&argv_ip_enum), re_ip("((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}"), re_num("num:num:([0-9]{1,2})"), re_mode(argv_mode)
+void select_ip::get_ip(std::string& argv_tmp)
 {
-    init();
+    std::regex_search(argv_tmp, _regex_return, _regex_ip);
+    argv_tmp = _regex_return.str();
 }
 
-bool select_ip::config()
+void select_ip::run()
 {
-    return (file_str_s != nullptr && ip_enum != nullptr);
-}
+    login_failed_ip();
 
-bool select_ip::config(vector<string>& argv_file_str_s, map<string,int>& argv_ip_enum, int argv_mode)
-{
-    file_str_s = &argv_file_str_s;
-    ip_enum = &argv_ip_enum;
-    re_mode = argv_mode;
-    return config();
-}
-
-void select_ip::init()
-{
-    if (re_mode == 1)
+    if (_ip.size() != 0)
     {
-        if (!config())
-            throw std::logic_error("select_ip 未就绪");
-
-        for (auto a = file_str_s->begin(); a != file_str_s->end(); ++a)
+        //++tmp_int;
+        if (_login_blacklisk_set.find(_ip) == _login_blacklisk_set.end())
         {
-            regex_search(*a, re_ip_return, re_ip);
-            regex_search(*a, re_num_return, re_num);
-            push_back(re_ip_return.str(), atoi(re_num_return.str(1).c_str()));
+            ++(_login_failures_map[_ip]);
+
+            if (_login_failures_map[_ip] > _login_failures_size)
+            {
+                _login_failures_map.erase(_ip);
+                _login_blacklisk_set.emplace(_ip);
+            }
         }
     }
-    else
-    {
-        if (!config())
-            throw std::logic_error("select_ip 未就绪");
-
-        for (auto a = file_str_s->begin(); a != file_str_s->end(); ++a)
-        {
-            regex_search(*a, re_ip_return, re_ip);
-            push_back(re_ip_return.str());
-        }
-    }
-
 }
 
-
-void select_ip::push_back(const string& argv_ip)
+bool select_ip::login_failed()
 {
-    if (ip_enum->count(argv_ip) == 1)
-    {
-        (*ip_enum)[argv_ip] = (*ip_enum)[argv_ip] +1;
-    }
-    else
-        (*ip_enum)[argv_ip] = 1;
+    _log_failed_find_index = _log_line_str.find(_login_failed_feature_str);
+    return (_log_failed_find_index >= 0 &&  _log_failed_find_index <= _log_line_str.size());
 }
 
-void select_ip::push_back(const string& argv_ip, const int& argv_num)
+void select_ip::login_failed_ip()
 {
-    (*ip_enum)[argv_ip] = argv_num;
-}
-
-void select_ip::show()
-{
-    for (auto a = ip_enum->begin(); a != ip_enum->end(); ++a)
+    _ip.clear();
+    if (login_failed())
     {
-        cout << "ip:\t" << a->first << "\tsize:\t" << a->second << endl;
+        std::regex_search(_log_line_str, _regex_return, _regex_ip);
+        _ip = _regex_return.str();
     }
 }
-
-
-
-
-
-
-
-

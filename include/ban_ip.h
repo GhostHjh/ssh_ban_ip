@@ -1,58 +1,63 @@
 #pragma once
 #include <iostream>
-#include <string>
-#include <vector>
 #include <map>
-#include <regex>
+#include <set>
+#include <fstream>
+#include <string>
 
 #include "my_ini.h"
 #include "select_ip.h"
 
-using std::string;
-using std::vector;
-using std::map;
-using std::regex;
-using std::smatch;
-
-
 class ban_ip
 {
-private:
-    class config_t
-    {
-    public:
-        string os;
-        string log_file_name;
-        int error_num;
-        int int_time;
-        string hosts_file_name;
-        string record_file_name;
-    };
-
 public:
     ban_ip();
     ~ban_ip();
-    ban_ip(const string& config_file_name);
 
-    bool config();
-    bool config(const string& config_file_name);
-
-    bool init();
-
-    void run();
-
-    int get_int_time();
+public:
+    //运行一次
+    void run(const char* argv_configfile_path = "./config.ini");
+    //重新创建一个配置文件
+    void init_config_file(const char* argv_file_name = "./config.ini");
+    void show()
+    {
+        for (auto& ip : _login_blacklist_set)
+            std::cout << ip << "\n";
+    }
 
 private:
-    string config_file_name;
-    config_t m_config;
+    //从配置文件读取配置
+    bool update_config(const char* argv_configfile_path);
+    //更新黑名单
+    void update_login_blacklist_set();
+    //日志文件是否改变
+    bool logfile_change();
 
-    vector<string> log_file_str_s;
-    map<string, int> log_ip_enum;
+private:
+    //日志文件的路径
+    std::string _logfile_name;
+    //登入失败的次数
+    int _login_failures_size;
+    //hosts.deny文件的路径
+    std::string _hostsfile_name;
 
-    vector<string> hosts_file_str_s;
-    map<string, int> hosts_ip_enum;
+    //用于存储失败次数的哈希表
+    std::map<std::string, int> _login_failures_map;
+    //存储ip黑名单
+    std::set<std::string> _login_blacklist_set;
+
+    //从日志文件读取的字符串
+    std::string _file_line_str;
+    //日志文件读取到了第机行
+    int _file_line_number;
+
+private:
+    //日志文件句柄
+    std::ifstream _log_file_fd;
+    //hosts.deny文件句柄
+    std::ofstream _hosts_file_fd;
+
+private:
+    //用于筛选ip的
+    select_ip _select_ip;
 };
-
-
-
