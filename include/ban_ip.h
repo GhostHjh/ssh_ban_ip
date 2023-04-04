@@ -19,11 +19,14 @@ public:
     void run(const char* argv_configfile_path = "./config.ini");
     //重新创建一个配置文件
     void init_config_file(const char* argv_file_name = "./config.ini");
+    //显示当前黑名单ip
     void show()
     {
         for (auto& ip : _login_blacklist_set)
             std::cout << ip << "\n";
     }
+    //查看帮助文档
+    void help();
 
 private:
     //从配置文件读取配置
@@ -50,6 +53,8 @@ private:
     std::string _file_line_str;
     //日志文件读取到了第机行
     int _file_line_number;
+    //存储读取到的ip
+    std::string _ip;
 
 private:
     //日志文件句柄

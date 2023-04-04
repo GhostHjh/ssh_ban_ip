@@ -6,7 +6,7 @@
 #include <string>
 
 ban_ip::ban_ip()
-    : _file_line_number(0), _login_failures_size(0), _select_ip(_file_line_str, _login_blacklist_set, _login_failures_map, _login_failures_size)
+    : _file_line_number(0), _login_failures_size(0), _ip('\0', 16), _select_ip(_file_line_str, _ip)
 {}
 
 ban_ip::~ban_ip()
@@ -14,6 +14,8 @@ ban_ip::~ban_ip()
     _log_file_fd.close();
     _hosts_file_fd.close();
 }
+
+
 
 void ban_ip::run(const char* argv_configfile_path)
 {
@@ -24,10 +26,24 @@ void ban_ip::run(const char* argv_configfile_path)
             perror("读取到的配置文件不完整");
             exit(1);
         }
+    }
 
-        for (; std::getline(_log_file_fd, _file_line_str); )
+    for (; std::getline(_log_file_fd, _file_line_str); )
+    {
+        if (_select_ip.get_failed_feature() && _select_ip.get_ip())
         {
-            _select_ip.run();
+            if (_login_blacklist_set.find(_ip) == _login_blacklist_set.end())
+            {
+                if (_login_failures_map[_ip] == _login_failures_size)
+                {
+                    _login_failures_map.erase(_ip);
+                    _login_blacklist_set.emplace(_ip);
+                    _hosts_file_fd << "sshd:" << _ip << "\n";
+                    _hosts_file_fd.flush();
+                }
+                else
+                    ++(_login_failures_map[_ip]);
+            }
         }
     }
 }
@@ -72,7 +88,7 @@ void ban_ip::init_config_file(const char* argv_file_name)
         perror("配置文件生成失败!"), exit(1);
 
     //检测系统    
-    const char* debian_logfile_name = "/var/log/auto.log";
+    const char* debian_logfile_name = "/var/log/auth.log";
     const char* centos_logfile_name = "/var/log/secure";
     
     std::ifstream tmp_log_file;
@@ -109,16 +125,13 @@ void ban_ip::update_login_blacklist_set()
     std::ifstream tmp_file_fd(_hostsfile_name, std::ios::in);
     if (tmp_file_fd.is_open())
     {
-        std::string tmp_lien;
-        for (; std::getline(tmp_file_fd, tmp_lien); )
+        for (; std::getline(tmp_file_fd, _file_line_str); )
         {
-            _select_ip.get_ip(tmp_lien);
-
-            if (_login_blacklist_set.find(tmp_lien) == _login_blacklist_set.end())
+            if (_select_ip.get_ip())
             {
-                _login_blacklist_set.emplace(tmp_lien);
+                if (_login_blacklist_set.find(_ip) == _login_blacklist_set.end())
+                    _login_blacklist_set.insert(_ip);
             }
-            tmp_lien.clear();
         }
     }
 }
